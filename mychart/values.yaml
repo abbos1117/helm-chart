@@ -1,0 +1,86 @@
+global:
+  replicaCount: 1
+#  environment:
+#    MONGO_URL: mongodb
+#    EXTERNAL_LOAN_DB_HOST: jdbc:postgresql
+#    EXTERNAL_LOAN_DB_USERNAME: external_loan
+#    EXTERNAL_LOAN_DB_PASSWORD: stag_163$feQ3QWvFVEv12
+#    KAFKA_SERVERS: 172.20.6.1:9092
+image:
+  repository: 10449/front-9200
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+
+annotations: {}
+
+services:
+  - name: external-loan-service
+    type: ClusterIP
+    annotations: {}
+    specs:
+      - port: 9200
+        targetPort: 9200
+        name: http
+
+environment: {}
+
+liveness:
+  enabled: false
+  path: /alive
+  port: 9200
+  initialDelaySeconds: 3
+  periodSeconds: 3
+
+readiness:
+  enabled: false
+  path: /actuator/health
+  port: 9200
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+
+volumes:
+  enabled: false
+  pvc:
+    enabled: false
+    existing_claim: ""
+    name: pvc
+    mountPath: /pv
+    size: 1G
+    class: ""
+    accessModes:
+      - ReadWriteOnce
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-prod  # bu siz o‘rnatgan clusterissuer nomi
+  hosts:
+    - host: ingress.quvonchbekdev.uz
+      paths:
+        - path: /
+          pathType: Prefix
+          service:
+            name: external-loan-service  # yoki templates ichida yaratilgan service nomi
+            port: 9200
+  tls:
+    - hosts:
+        - ingress.quvonchbekdev.uz
+      secretName: ingress-quvonchbekdev-uz-tls  # avtomatik yaratiladigan TLS secret nomi
+
+
+#ingress:
+#  enabled: true
+#  annotations:
+#    kubernetes.io/ingress.class: nginx
+#  hosts:
+#    - host: ingress.quvonchbekdev.uz
+#      servicePort: 9200
+#      serviceName: external-loan-service
+#      path: /external-loan
+#      pathType: Prefix
+#  tls: []
