@@ -23,9 +23,10 @@ spec:
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-        - name: {{ .Values.imagePullSecrets }}
+        {{- range .Values.imagePullSecrets }}
+        - name: {{ .name }}
+        {{- end }}
       {{- end }}
-
       containers:
         - name: {{ include "mychart.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
