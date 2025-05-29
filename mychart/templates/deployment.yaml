@@ -25,6 +25,7 @@ spec:
       imagePullSecrets:
         - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+
       containers:
         - name: {{ include "mychart.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -62,6 +63,7 @@ spec:
             periodSeconds: {{ .Values.readiness.periodSeconds }}
             failureThreshold: {{ .Values.readiness.failureThreshold }}
           {{- end }}
+
       {{- if and .Values.volumes.enabled .Values.volumes.pvc.enabled }}
       volumes:
         - name: pvc-storage
