@@ -64,6 +64,8 @@ spec:
             periodSeconds: {{ .Values.readiness.periodSeconds }}
             failureThreshold: {{ .Values.readiness.failureThreshold }}
           {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
 
       {{- if and .Values.volumes.enabled .Values.volumes.pvc.enabled }}
       volumes:
